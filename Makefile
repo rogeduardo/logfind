@@ -7,10 +7,6 @@ CC=cc
 CFLAGS=-Wall -Wpedantic -o
 #Flag for debug
 DEBUG=-g
-#.c files
-C_SOURCE=$(wildcard *.c)
-#.h files
-H_SOURCE=$(wildcard *.h)
 
 all: $(EXEC)
 
