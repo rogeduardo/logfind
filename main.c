@@ -44,7 +44,7 @@ int main (int argc, char *argv[])
 	{
 		int j = 0;
 		debug ("OR operator");
-		keywords = (char **) calloc ((argc - 2), sizeof (char **));
+		keywords = (char **) calloc ((argc - 2), sizeof (char *));
 		//Get only keywords not program name and the -o parameter
 		for (int i = 1; i < argc; i++)
 		{

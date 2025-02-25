@@ -1,28 +1,53 @@
+#Name of the project
+EXEC=logfind
+
+#Compiler and linker
 CC=cc
+#Flags for compiler
 CFLAGS=-Wall -Wpedantic -o
+#Flag for debug
 DEBUG=-g
+#.c files
+C_SOURCE=$(wildcard *.c)
+#.h files
+H_SOURCE=$(wildcard *.h)
 
-all: logfind
+all: $(EXEC)
 
-logfind: main.o logfind.o
-	$(CC) -DNDEBUG $(CFLAGS) logfind logfind.o main.o
+$(EXEC): main.o $(EXEC).o
+	@ echo 'Building binary using gcc linker: $@'
+	$(CC) -DNDEBUG $(CFLAGS) $@ $^
+	@ echo 'Finished building binary: $@'
+	@ echo ' '
 
 main.o:
+	@ echo 'Building target using gcc compiler: $<'
 	$(CC) -c -DNDEBUG $(CFLAGS) main.o main.c
+	@ echo ' '
 
-logfind.o:
-	$(CC) -c -DNDEBUG $(CFLAGS) logfind.o logfind.c
+%.o: %.c %.h
+	@ echo 'Building target using gcc compiler: $<'
+	$(CC) -c -DNDEBUG $(CFLAGS) $@ $<
+	@ echo ' '
 
-debug: debug_logfind
+debug: debug_$(EXEC)
 
-debug_logfind: debug_main.o debug_logfind.o
-	$(CC) $(DEBUG) $(CFLAGS) logfind logfind.o main.o
+debug_$(EXEC): debug_main.o debug_$(EXEC).o
+	@ echo 'Building binary, for debug, using gcc linker: $@'
+	$(CC) $(DEBUG) $(CFLAGS) $(EXEC) main.o $(EXEC).o
+	@ echo 'Finished building binary: $@'
+	@ echo ' '
 
 debug_main.o:
+	@ echo 'Building target using gcc compiler: $<'
 	$(CC) -c $(DEBUG) $(CFLAGS) main.o main.c
+	@ echo ' '
 
-debug_logfind.o:
-	$(CC) -c $(DEBUG) $(CFLAGS) logfind.o logfind.c
+debug_$(EXEC).o: $(EXEC).c $(EXEC).h
+	@ echo 'Building target using gcc compiler: $<'
+	$(CC) -c $(DEBUG) $(CFLAGS) $(EXEC).o $(EXEC).c
+	@ echo ' '
+
 clean:
-	rm -rf *.o *~ logfind
+	rm -rf *.o *~ $(EXEC)
 
