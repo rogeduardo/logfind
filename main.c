@@ -13,7 +13,7 @@
  *    4. The list of file names can be anything that the glob function allows.
  *    5. It output the matching lines as scan. 
  *
- *This project was a suggest at Learn C the Hard Way: Practical Exercises on the Computational Subjects You Keep Avoiding (Like C)*/
+ *This project was suggested at Learn C the Hard Way: Practical Exercises on the Computational Subjects You Keep Avoiding (Like C)*/
 
 #include <stdio.h>
 #include <string.h>
@@ -52,12 +52,12 @@ int main (int argc, char *argv[])
 				keywords[j++] = argv[i];
 		}
 		check_mem (keywords);
-		logfind ( keywords, operator );
+		logfind ( keywords, (argc-2), operator );
 	}
 	else
 	{
 		debug ("AND operator");
-		logfind ( (&argv[0] + 1), operator );		
+		logfind ( (&argv[0] + 1), (argc-1), operator );		
 	}
 	error:
 		if (keywords)
