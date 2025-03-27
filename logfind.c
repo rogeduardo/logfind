@@ -46,7 +46,7 @@ void searchAND(char *pathfile, char **keywordsv, int keywordsc)
 			token = strtok(readline, " ");
 			while (token)
 			{
-				debug("%s\n", token);
+				debug("*%s* == *%s*\n", token, keywordsv[i]);
 				if (!strcmp (token, keywordsv[i]))
 				{
 					size_kl++;
@@ -102,7 +102,7 @@ void searchOR(char *pathfile, char **keywordsv, int keywordsc)
 			token = strtok(readline, " ");
 			while (token)
 			{
-				debug("%s\n", token);
+				debug("*%s* == *%s*\n", token, keywordsv[i]);
 				if (!strcmp(token, keywordsv[i]))
 					printf("Found a keyword %s at %s, line %d!\n", keywordsv[i], pathfile, line);
 
