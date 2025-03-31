@@ -30,7 +30,7 @@ int main (int argc, char *argv[])
 	char **keywordsv;
 	int keywordc = 0;
 
-	check (argc == 1, "Correct usage: logfind [-o] keywords ...\n");
+	check (argc > 1, "Correct usage: logfind [-o] keywords ...\n");
 
 	for (int i = 1; i < argc; i++)
 	{
@@ -43,7 +43,7 @@ int main (int argc, char *argv[])
 		int j = 0;
 		keywordc = argc - 2;
 
-		check (keywordc == 0, "Correct usage: logfind [-o] keywords ...\n");
+		check (keywordc > 0, "Correct usage: logfind [-o] keywords ...\n");
 
 		check (keywordc < MAX_KEYWORDS, "The maximum keywords to be search is %d", MAX_KEYWORDS);
 
