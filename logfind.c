@@ -11,6 +11,7 @@
 typedef struct keyword_line
 {
 	char *keyword;
+	char *full_line;
 	int line;
 } keyword_line;
 
@@ -27,97 +28,80 @@ void removeinvalidchar(char *str, char invchar)
 void searchAND(char *pathfile, char **keywordsv, int keywordsc)
 {
 	FILE *fp = NULL;
-	char readline[MAX_LINE], *token = NULL;
+	char readline[MAX_LINE];
 	// searchctl is the control to known if all keywords was found
 	unsigned int searchctl[MAX_KEYWORDS], size_kl = 0;
 	// Store the position where keywords was found
 	keyword_line *kl = NULL;
 
-	debug ("Search on this file %s\n", pathfile);
+	debug("Search on this file %s\n", pathfile);
 	fp = fopen(pathfile, "r");
-	check (fp, "Failed to open %s\n", pathfile);
+	check(fp, "Failed to open %s\n", pathfile);
 	int line = 1;
 
-	memset(&searchctl, 0, sizeof(int)*MAX_KEYWORDS);
-	while (fgets (readline, MAX_LINE, fp))
+	memset(&searchctl, 0, sizeof(int) * MAX_KEYWORDS);
+	while (fgets(readline, MAX_LINE, fp))
 	{
 		for (int i = 0; i < keywordsc; i++)
 		{
-			token = strtok(readline, " ");
-			while (token)
+
+			debug("*%s* in *%s*\n", keywordsv[i], readline);
+			if (!strcasestr(keywordsv[i], readline))
 			{
-				debug("*%s* == *%s*\n", token, keywordsv[i]);
-				if (!strcmp (token, keywordsv[i]))
-				{
-					size_kl++;
-					kl = (keyword_line *) realloc (kl, sizeof(keyword_line)*size_kl);
-					check_mem (kl);
-					kl[size_kl - 1].keyword = keywordsv[i];
-					kl[size_kl - 1].line = line;
-					searchctl[i]++;
-				}
-				token = strtok(NULL, " ");
+				size_kl++;
+				kl = (keyword_line *)realloc(kl, sizeof(keyword_line) * size_kl);
+				check_mem(kl);
+				kl[size_kl - 1].keyword = keywordsv[i];
+				kl[size_kl - 1].full_line = readline;
+				kl[size_kl - 1].line = line;
+				searchctl[i]++;
 			}
-			free(token);
-			token = NULL;
 		}
 		line++;
 	}
 
-	for ( int i = 0; i < keywordsc; i++ )
+	for (int i = 0; i < keywordsc; i++)
 	{
-		//If any keyword was not found on the file, dont print nothing.
+		// If any keyword was not found on the file, dont print nothing.
 		if (!searchctl[i])
 			goto error;
 	}
 
-	for ( int i = 0; i < size_kl; i++ )
+	for (int i = 0; i < size_kl; i++)
 	{
-		printf("Found a keyword %s at %s, line %d!\n", kl[i].keyword, pathfile, kl[i].line);
+		printf("%s at %s, %d : %s\n", kl[i].keyword, pathfile, kl[i].line, kl[i].full_line);
 	}
 
-	error:
-		if (fp)
-			fclose (fp);
-		if (token)
-			free (token);
-		if (kl)
-			free (kl);
+error:
+	if (fp)
+		fclose(fp);
+	if (kl)
+		free(kl);
 }
 
 void searchOR(char *pathfile, char **keywordsv, int keywordsc)
 {
 	FILE *fp = NULL;
-	char readline[MAX_LINE], *token = NULL;
+	char readline[MAX_LINE];
 
-	debug ("Search on this file %s\n", pathfile);
+	debug("Search on this file %s\n", pathfile);
 	fp = fopen(pathfile, "r");
-	check (fp, "Failed to open %s\n", pathfile);
+	check(fp, "Failed to open %s\n", pathfile);
 	int line = 1;
 
-	while (fgets (readline, MAX_LINE, fp))
+	while (fgets(readline, MAX_LINE, fp))
 	{
 		for (int i = 0; i < keywordsc; i++)
 		{
-			token = strtok(readline, " ");
-			while (token)
-			{
-				debug("*%s* == *%s*\n", token, keywordsv[i]);
-				if (!strcmp(token, keywordsv[i]))
-					printf("Found a keyword %s at %s, line %d!\n", keywordsv[i], pathfile, line);
-
-				token = strtok(NULL, " ");
-			}
-			free(token);
-			token = NULL;
+			debug("*%s* in *%s*\n", keywordsv[i], readline);
+			if (strcasestr(keywordsv[i], readline))
+				printf("%s at %s, %d : %s\n", kl[i].keyword, pathfile, kl[i].line, kl[i].full_line);
 		}
 		line++;
 	}
-	error:
-		if (fp)
-			fclose (fp);
-		if (token)
-			free (token);
+error:
+	if (fp)
+		fclose(fp);
 }
 
 void logfind(char **keywordsv, int keywordsc, bool operator)
@@ -130,7 +114,7 @@ void logfind(char **keywordsv, int keywordsc, bool operator)
 
 	home = getenv("HOME");
 	fp = fopen(strcat(home, "/.logfind"), "r");
-	check (fp, "Failed to open $HOME/.logfind");
+	check(fp, "Failed to open $HOME/.logfind");
 	while (fgets(readline, MAX_LINE, fp))
 	{
 		/*Remove all invalid characters (\r or \n) from the string to be used on glob,
@@ -141,17 +125,14 @@ void logfind(char **keywordsv, int keywordsc, bool operator)
 		}
 
 		out = glob(readline, 0, NULL, &ret_glob);
-		debug ("Return glob %d of pattern file %s and found %zu file(s)\n", out, readline, ret_glob.gl_pathc);
+		debug("Return glob %d of pattern file %s and found %zu file(s)\n", out, readline, ret_glob.gl_pathc);
 
-		if (!out)
+		for (int i = 0; i < ret_glob.gl_pathc; i++)
 		{
-			for (int i = 0; i < ret_glob.gl_pathc; i++)
-			{
-				if (operator == OR)
-					searchOR (ret_glob.gl_pathv[i], keywordsv, keywordsc);
-				else if (operator == AND)
-					searchAND (ret_glob.gl_pathv[i], keywordsv, keywordsc);
-			}
+			if (operator== OR)
+				searchOR(ret_glob.gl_pathv[i], keywordsv, keywordsc);
+			else if (operator== AND)
+				searchAND(ret_glob.gl_pathv[i], keywordsv, keywordsc);
 		}
 	}
 
