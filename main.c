@@ -29,6 +29,7 @@ int main (int argc, char *argv[])
 	bool operator = AND;
 	char **keywordsv;
 	int keywordc = 0;
+	int rc = -1;
 
 	check (argc > 1, "Correct usage: logfind [-o] keywords ...\n");
 
@@ -56,16 +57,19 @@ int main (int argc, char *argv[])
 				keywordsv[j++] = argv[i];
 		}
 		check_mem (keywordsv);
-		logfind ( keywordsv, keywordc, operator );
+		rc = logfind ( keywordsv, keywordc, operator );
+		check ( rc == 0, "Error on logfind" );
 	}
 	else
 	{
 		debug ("AND operator");
-		logfind ( (&argv[0] + 1), (argc-1), operator );
+		rc = logfind ( (&argv[0] + 1), (argc-1), operator );
+		check ( rc == 0, "Error on logfind" );
 	}
+	rc = 0;
 	error:
 		if (keywordsv)
 			free (keywordsv);
 
-	return 0;
+	return rc;
 }

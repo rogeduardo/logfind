@@ -5,25 +5,27 @@
 #include <stdbool.h>
 
 /**
- * Do the and search on a given file
+ * Do the and search on a given file, return 0 on succeded, anything else on error.
  * keywordsv - keyword value string array
  * keywordsc - keyword value count
  * operator - OR or AND search to be performed on files
  */
-void logfind (char **keywordsv, int keywordsc, bool operator);
+int logfind (char **keywordsv, int keywordsc, bool operator);
+
 /**
- * Do the and search on a given file
+ * Do the and search on a given file, return 0 on succeded, anything else on error.
  * pathfile - Complete path file
  * keywordsv - keyword value string array
  * keywordsc - keyword value count
  */
-void searchAND(char *pathfile, char **keywordsv, int keywordsc);
+int searchAND(char *pathfile, char **keywordsv, int keywordsc);
+
 /**
- * Do the or search on a given file
+ * Do the or search on a given file, return 0 on succeded, anything else on error.
  * pathfile - Complete path file
  * keywordsv - keyword value string array
  * keywordsc - keyword value count
  */
-void searchOR(char *pathfile, char **keywordsv, int keywordsc);
+int searchOR(char *pathfile, char **keywordsv, int keywordsc);
 
 #endif

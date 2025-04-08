@@ -17,12 +17,12 @@ typedef struct keyword_line
 } keyword_line;
 
 /**
- * Do the and search on a given file
+ * Do the and search on a given file, return 0 on succeded, anything else on error.
  * pathfile - Complete path file
  * keywordsv - keyword value string array
  * keywordsc - keyword value count
  */
-void searchAND(char *pathfile, char **keywordsv, int keywordsc)
+int searchAND(char *pathfile, char **keywordsv, int keywordsc)
 {
 	FILE *fp = NULL;
 	char readline[MAX_LINE];
@@ -30,6 +30,7 @@ void searchAND(char *pathfile, char **keywordsv, int keywordsc)
 	unsigned int searchctl[MAX_KEYWORDS], size_kl = 0;
 	// Store the position where keywords was found
 	keyword_line *kl = NULL;
+	int rc = -1;
 
 	debug("Search on this file %s\n", pathfile);
 	fp = fopen(pathfile, "r");
@@ -66,11 +67,12 @@ void searchAND(char *pathfile, char **keywordsv, int keywordsc)
 
 	for (int i = 0; i < size_kl; i++)
 	{
-		printf("%s at %s, %d : %s\n", kl[i].keyword, pathfile, kl[i].line, kl[i].full_line);
+		printf("%s at %s, %d : %s", kl[i].keyword, pathfile, kl[i].line, kl[i].full_line);
 		free(kl[i].full_line);
 		kl[i].full_line = NULL;
 	}
 
+	rc = 0;
 error:
 	if (fp)
 		fclose(fp);
@@ -83,18 +85,20 @@ error:
 		}
 		free(kl);
 	}
+	return rc;
 }
 
 /**
- * Do the or search on a given file
+ * Do the or search on a given file, return 0 on succeded, anything else on error.
  * pathfile - Complete path file
  * keywordsv - keyword value string array
  * keywordsc - keyword value count
  */
-void searchOR(char *pathfile, char **keywordsv, int keywordsc)
+int searchOR(char *pathfile, char **keywordsv, int keywordsc)
 {
 	FILE *fp = NULL;
 	char readline[MAX_LINE];
+	int rc = -1;
 
 	debug("Search on this file %s\n", pathfile);
 	fp = fopen(pathfile, "r");
@@ -107,26 +111,29 @@ void searchOR(char *pathfile, char **keywordsv, int keywordsc)
 		{
 			debug("*%s* in *%s*\n", keywordsv[i], readline);
 			if (strstr(readline, keywordsv[i]))
-				printf("%s at %s, %d : %s\n", keywordsv[i], pathfile, line, readline);
+				printf("%s at %s, %d : %s", keywordsv[i], pathfile, line, readline);
 		}
 		line++;
 	}
+	rc = 0;
 error:
 	if (fp)
 		fclose(fp);
+
+	return rc;
 }
 
 /**
- * Do the and search on a given file
+ * Do the and search on a given file, return 0 on succeded, anything else on error.
  * keywordsv - keyword value string array
  * keywordsc - keyword value count
  * operator - OR or AND search to be performed on files
  */
-void logfind(char **keywordsv, int keywordsc, bool operator)
+int logfind(char **keywordsv, int keywordsc, bool operator)
 {
 	FILE *fp = NULL;
 	char readline[MAX_LINE], *home;
-	int rc;
+	int rc = -1;
 	glob_t ret_glob;
 
 	home = getenv("HOME");
@@ -151,9 +158,13 @@ void logfind(char **keywordsv, int keywordsc, bool operator)
 		}
 		globfree(&ret_glob);
 	}
+	rc = 0;
 
 error:
 	if (fp)
 		fclose(fp);
-	globfree(&ret_glob);
+	if (rc == 0)
+		globfree(&ret_glob);
+
+    return rc;
 }
