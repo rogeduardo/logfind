@@ -6,6 +6,9 @@
 #include "dbg.h"
 #include "macro.h"
 
+/**
+ * Store keyword, line (number) and the content line where keyword was found
+ */
 typedef struct keyword_line
 {
 	char *keyword;
@@ -13,6 +16,12 @@ typedef struct keyword_line
 	int line;
 } keyword_line;
 
+/**
+ * Do the and search on a given file
+ * pathfile - Complete path file
+ * keywordsv - keyword value string array
+ * keywordsc - keyword value count
+ */
 void searchAND(char *pathfile, char **keywordsv, int keywordsc)
 {
 	FILE *fp = NULL;
@@ -37,7 +46,6 @@ void searchAND(char *pathfile, char **keywordsv, int keywordsc)
 			if (strstr(readline, keywordsv[i]))
 			{
 				size_kl++;
-				debug("size_kl %d : %lu\n", size_kl, sizeof(keyword_line) * size_kl);
 				kl = (keyword_line *)realloc(kl, sizeof(keyword_line) * size_kl);
 				check_mem(kl);
 				kl[size_kl - 1].keyword = keywordsv[i];
@@ -77,6 +85,12 @@ error:
 	}
 }
 
+/**
+ * Do the or search on a given file
+ * pathfile - Complete path file
+ * keywordsv - keyword value string array
+ * keywordsc - keyword value count
+ */
 void searchOR(char *pathfile, char **keywordsv, int keywordsc)
 {
 	FILE *fp = NULL;
@@ -102,6 +116,12 @@ error:
 		fclose(fp);
 }
 
+/**
+ * Do the and search on a given file
+ * keywordsv - keyword value string array
+ * keywordsc - keyword value count
+ * operator - OR or AND search to be performed on files
+ */
 void logfind(char **keywordsv, int keywordsc, bool operator)
 {
 	FILE *fp = NULL;
